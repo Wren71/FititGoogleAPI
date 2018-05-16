@@ -154,6 +154,10 @@ public class MapsActivity extends AppCompatActivity
 
 
 
+          mMap.setOnPolylineClickListener(this);
+
+
+
         Polyline polyline1 = mMap.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .add(
@@ -163,7 +167,7 @@ public class MapsActivity extends AppCompatActivity
                         new LatLng(-33.881073, 151.198729)));
 
         polyline1.setTag("Relaxed Run");
-        stylePolylineRelaxedRun(polyline1);
+        stylePolyline(polyline1);
 
 
 
@@ -176,7 +180,7 @@ public class MapsActivity extends AppCompatActivity
                         new LatLng(37.421763, -122.084938)));
 
         polyline2.setTag("Short Run");
-        stylePolylineShortRun(polyline2);
+        stylePolyline(polyline2);
 
         Polyline polyline3 = mMap.addPolyline(new PolylineOptions()
                 .clickable(true)
@@ -187,7 +191,7 @@ public class MapsActivity extends AppCompatActivity
                         new LatLng(37.422580, -122.081682)));
 
         polyline3.setTag("Relaxed Run");
-        stylePolylineRelaxedRun(polyline3);
+        stylePolyline(polyline3);
 
 
 
@@ -209,15 +213,38 @@ public class MapsActivity extends AppCompatActivity
                 ));
 
         polyline4.setTag("Long Run");
-        stylePolylineLongRun(polyline4);
+        stylePolyline(polyline4);
 
 
 
+         mMap.setOnPolygonClickListener(this);
+
+
+         // Add polygons to indicate areas on the map.
+        Polygon polygon1 = mMap.addPolygon(new com.google.android.gms.maps.model.PolygonOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(37.424779, -122.090553),
+                        new LatLng(37.424575, -122.086798),
+                        new LatLng(37.423621, -122.086862),
+                        new LatLng(37.423962, -122.090016)));
+        // Store a data object with the polygon, used here to indicate an arbitrary type.
+        polygon1.setTag("Relaxed Area");
+        // Style the polygon.
+        stylePolygon(polygon1);
+
+        Polygon polygon2 = mMap.addPolygon(new com.google.android.gms.maps.model.PolygonOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(37.428203, -122.093104),
+                        new LatLng(37.428340, -122.087023),
+                        new LatLng(37.425103, -122.086916),
+                        new LatLng(37.426599, -122.093267)));
+        polygon2.setTag("Intense Area");
+        stylePolygon(polygon2);
 
 
 
-
-        mMap.setOnPolylineClickListener(this);
 
 
 
@@ -337,7 +364,18 @@ updateLocationUI();
     @Override
     public void onPolygonClick(Polygon polygon) {
 
+         // Flip the values of the red, green, and blue components of the polygon's color.
+        int color = polygon.getStrokeColor(); //^ 0x00ffffff;
+        polygon.setStrokeColor(color);
+        color = polygon.getFillColor();
+        polygon.setFillColor(color);
+
+        Toast.makeText(this, "Area type " + polygon.getTag().toString(), Toast.LENGTH_SHORT).show();
     }
+
+
+
+
 
     @Override
     public void onPolylineClick(Polyline polyline) {
@@ -355,34 +393,59 @@ updateLocationUI();
 
 
 
-    private void stylePolylineRelaxedRun(Polyline polyline) {
+    private void stylePolyline(Polyline polyline) {
+
+         String type = "";
+    // Get the data object stored with the polyline.
+    if (polyline.getTag() != null) {
+        type = polyline.getTag().toString();
+    }
+
+    switch (type) {
+        // If no type is given, allow the API to use the default.
+        case "Relaxed Run":
+
 
         polyline.setStartCap(new RoundCap());
         polyline.setEndCap(new SquareCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
         polyline.setColor(COLOR_GREEN_ARGB);
         polyline.setJointType(JointType.ROUND);
-    }
 
-    private void stylePolylineLongRun(Polyline polyline) {
+            break;
 
-        polyline.setStartCap(new RoundCap());
+        case "Long Run":
+            polyline.setStartCap(new RoundCap());
         polyline.setEndCap(new SquareCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
-        polyline.setColor(COLOR_BLACK_ARGB);
+        polyline.setColor(Color.RED);
         polyline.setJointType(JointType.ROUND);
-    }
 
 
+            break;
 
-
-    private void stylePolylineShortRun(Polyline polyline) {
+            case "Short Run":
 
         polyline.setStartCap(new RoundCap());
         polyline.setEndCap(new SquareCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
         polyline.setColor(COLOR_ORANGE_ARGB );
         polyline.setJointType(JointType.ROUND);
+
+
+            break;
+
+
+
+
+
+
+
+
+
+
+    }
+
     }
 
 
@@ -399,7 +462,7 @@ updateLocationUI();
         mMap.addMarker(marker);
 
         polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.RED);
+        polylineOptions.color(Color.BLACK);
         polylineOptions.width(5);
         arrayPoints.add(latLng);
         polylineOptions.addAll(arrayPoints);
@@ -432,9 +495,53 @@ updateLocationUI();
 
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
 
-        arrayPoints = new ArrayList<LatLng>();
+        arrayPoints = new ArrayList<>();
     }
 
+/**
+     * Styles the polygon, based on type.
+     * @param polygon The polygon object that needs styling.
+     */
+    private void stylePolygon(Polygon polygon) {
+        String type = "";
+        // Get the data object stored with the polygon.
+        if (polygon.getTag() != null) {
+            type = polygon.getTag().toString();
+        }
+
+        List<PatternItem> pattern = null;
+        int strokeColor = COLOR_BLACK_ARGB;
+        int fillColor = COLOR_WHITE_ARGB;
+
+        switch (type) {
+            // If no type is given, allow the API to use the default.
+            case "Relaxed Area":
+                // Apply a stroke pattern to render a dashed line, and define colors.
+                pattern = PATTERN_POLYGON_ALPHA;
+                strokeColor = COLOR_GREEN_ARGB;
+                fillColor = COLOR_GREEN_ARGB;
+                break;
+            case "Intense Area":
+                // Apply a stroke pattern to render a line of dots and dashes, and define colors.
+                pattern = PATTERN_POLYGON_BETA;
+                strokeColor = Color.RED;
+                fillColor = Color.RED;
+                break;
+
+
+              case "Short Area":
+                // Apply a stroke pattern to render a line of dots and dashes, and define colors.
+                pattern = PATTERN_POLYGON_BETA;
+                strokeColor = COLOR_ORANGE_ARGB;
+                fillColor = COLOR_ORANGE_ARGB;
+                break;
+        }
+
+        polygon.setStrokePattern(pattern);
+        polygon.setStrokeWidth(POLYGON_STROKE_WIDTH_PX);
+        polygon.setStrokeColor(strokeColor);
+        polygon.setFillColor(fillColor);
+    }
 
 
 
