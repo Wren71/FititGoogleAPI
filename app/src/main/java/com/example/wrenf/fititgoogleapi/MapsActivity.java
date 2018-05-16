@@ -1,6 +1,7 @@
 package com.example.wrenf.fititgoogleapi;
 
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -32,8 +33,11 @@ import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static android.util.Log.e;
 
 
 /**
@@ -42,7 +46,7 @@ import java.util.List;
 
 public class MapsActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnPolylineClickListener,
-        GoogleMap.OnPolygonClickListener {
+        GoogleMap.OnPolygonClickListener, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
 
     private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
@@ -99,6 +103,8 @@ public class MapsActivity extends AppCompatActivity
 
 
 
+    private PolylineOptions polylineOptions;
+    private ArrayList<LatLng> arrayPoints;
 
 
     @Override
@@ -112,6 +118,7 @@ public class MapsActivity extends AppCompatActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
     }
 
@@ -130,14 +137,21 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-        // Prompt the user for permission.
         getLocationPermission();
-
         // Turn on the My Location layer and the related control on the map.
-        updateLocationUI();
+       updateLocationUI();
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
+
+
+        // see the methods below for descriptions of the method use.
+        mMap.setOnMapClickListener(this);
+        mMap.setOnMapLongClickListener(this);
+
+        this.init();
+
 
 
         Polyline polyline1 = mMap.addPolyline(new PolylineOptions()
@@ -148,26 +162,80 @@ public class MapsActivity extends AppCompatActivity
                         new LatLng(-33.881483, 151.198429),
                         new LatLng(-33.881073, 151.198729)));
 
+        polyline1.setTag("Relaxed Run");
+        stylePolylineRelaxedRun(polyline1);
+
+
+
+        Polyline polyline2 = mMap.addPolyline(new PolylineOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(37.421955, -122.084112),
+                        new LatLng(37.421976, -122.084321),
+                        new LatLng(37.421904, -122.084343),
+                        new LatLng(37.421763, -122.084938)));
+
+        polyline2.setTag("Short Run");
+        stylePolylineShortRun(polyline2);
+
+        Polyline polyline3 = mMap.addPolyline(new PolylineOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(37.422093, -122.082729),
+                        new LatLng(37.422198, -122.082717),
+                        new LatLng(37.422259, -122.082621),
+                        new LatLng(37.422580, -122.081682)));
+
+        polyline3.setTag("Relaxed Run");
+        stylePolylineRelaxedRun(polyline3);
+
+
+
+        Polyline polyline4 = mMap.addPolyline(new PolylineOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(37.422097, -122.082733),
+                        new LatLng(37.422095, -122.082440),
+                        new LatLng(37.422099, -122.082405),
+                        new LatLng(37.422231, -122.082501),
+                        new LatLng(37.422423, -122.082673),
+                        new LatLng(37.422698, -122.082720),
+                        new LatLng(37.422873, -122.082866),
+                        new LatLng(37.422984, -122.081404)
+
+
+
+
+                ));
+
+        polyline4.setTag("Long Run");
+        stylePolylineLongRun(polyline4);
+
+
+
+
+
 
 
         mMap.setOnPolylineClickListener(this);
-
-        polyline1.setTag("Relaxed Run");
-        stylePolyline(polyline1);
-
-
-
-
 
 
 
     }
 
+
+
+
+
+
     /**
      * Gets the current location of the device, and positions the map's camera.
      */
     private void getDeviceLocation() {
-
+        /*
+         * Get the best and most recent location of the device, which may be null in rare
+         * cases when a location is not available.
+         */
         try {
             if (mLocationPermissionGranted) {
                 Task<Location> locationResult = mFusedLocationProviderClient.getLastLocation();
@@ -175,6 +243,7 @@ public class MapsActivity extends AppCompatActivity
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
                         if (task.isSuccessful()) {
+                            // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = task.getResult();
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                     new LatLng(mLastKnownLocation.getLatitude(),
@@ -235,7 +304,7 @@ public class MapsActivity extends AppCompatActivity
 
             }
         }
-        updateLocationUI();
+updateLocationUI();
     }
 
     /*
@@ -260,7 +329,7 @@ public class MapsActivity extends AppCompatActivity
                 getLocationPermission();
             }
         } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
+            e("Exception: %s", e.getMessage());
         }
     }
 
@@ -286,12 +355,33 @@ public class MapsActivity extends AppCompatActivity
 
 
 
-    private void stylePolyline(Polyline polyline) {
+    private void stylePolylineRelaxedRun(Polyline polyline) {
 
         polyline.setStartCap(new RoundCap());
         polyline.setEndCap(new SquareCap());
         polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
         polyline.setColor(COLOR_GREEN_ARGB);
+        polyline.setJointType(JointType.ROUND);
+    }
+
+    private void stylePolylineLongRun(Polyline polyline) {
+
+        polyline.setStartCap(new RoundCap());
+        polyline.setEndCap(new SquareCap());
+        polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
+        polyline.setColor(COLOR_BLACK_ARGB);
+        polyline.setJointType(JointType.ROUND);
+    }
+
+
+
+
+    private void stylePolylineShortRun(Polyline polyline) {
+
+        polyline.setStartCap(new RoundCap());
+        polyline.setEndCap(new SquareCap());
+        polyline.setWidth(POLYLINE_STROKE_WIDTH_PX);
+        polyline.setColor(COLOR_ORANGE_ARGB );
         polyline.setJointType(JointType.ROUND);
     }
 
@@ -301,11 +391,49 @@ public class MapsActivity extends AppCompatActivity
 
 
 
+    //adds marker with each short click and adds a polyline between each marker. This allows the user to create their own running routes.
+    @Override
+    public void onMapClick(LatLng latLng) {
+        MarkerOptions marker = new MarkerOptions();
+        marker.position(latLng);
+        mMap.addMarker(marker);
+
+        polylineOptions = new PolylineOptions();
+        polylineOptions.color(Color.RED);
+        polylineOptions.width(5);
+        arrayPoints.add(latLng);
+        polylineOptions.addAll(arrayPoints);
+        mMap.addPolyline(polylineOptions);
+
+    }
 
 
+    //deletes routes if user has a long click
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+       // mMap.clear();
+
+        arrayPoints.clear();
 
 
+    }
 
+    // sets array points of coordinates of user clicks.
+    private void init() {
+
+        String coordinates[] = { "33.8523341", "151.2106085" };
+        double lat = Double.parseDouble(coordinates[0]);
+        double lng = Double.parseDouble(coordinates[1]);
+
+        LatLng position = new LatLng(lat, lng);
+        //GooglePlayServicesUtil.isGooglePlayServicesAvailable(
+          //      MapsActivity.this);
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+
+        arrayPoints = new ArrayList<LatLng>();
+    }
 
 
 
