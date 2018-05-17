@@ -59,7 +59,7 @@ public class MapsActivity extends AppCompatActivity
     // A default location (Sydney, Australia) and default zoom to use when location permission is
     // not granted.
     private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
-    private static final int DEFAULT_ZOOM = 15;
+    private static final int DEFAULT_ZOOM = 20;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
 
@@ -137,6 +137,8 @@ public class MapsActivity extends AppCompatActivity
 
 
 
+
+
         getLocationPermission();
         // Turn on the My Location layer and the related control on the map.
        updateLocationUI();
@@ -152,22 +154,33 @@ public class MapsActivity extends AppCompatActivity
 
         this.init();
 
+ mMap.setBuildingsEnabled(true);
 
 
           mMap.setOnPolylineClickListener(this);
 
 
+//Polyline 2-4 are pre-set routes based on the current location of the emulator (googleplex).
+//Polygons 1-2 are pre-set area based on the current location of the emulator (googleplex).
+//Polyline 1 and 5-onwards are pre-set routes based on the actual current location in this case building 11 UTS.
+// Polygon 3- onwards are pre-set routes based on the actual current location in this case building 11 UTS.
 
         Polyline polyline1 = mMap.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .add(
-                        new LatLng(-33.884019, 151.199831),
-                        new LatLng(-33.883105, 151.199360),
-                        new LatLng(-33.881483, 151.198429),
-                        new LatLng(-33.881073, 151.198729)));
+                        new LatLng(-33.884037, 151.199840),
+                        new LatLng(-33.883839, 151.199829),
+                        new LatLng(-33.883040, 151.199325),
+                        new LatLng(-33.881453, 151.198443),
+
+                        new LatLng(-33.881053, 151.198735),
+                        new LatLng(-33.880620, 151.199088)
+
+    ));
 
         polyline1.setTag("Relaxed Run");
         stylePolyline(polyline1);
+
 
 
 
@@ -205,24 +218,50 @@ public class MapsActivity extends AppCompatActivity
                         new LatLng(37.422423, -122.082673),
                         new LatLng(37.422698, -122.082720),
                         new LatLng(37.422873, -122.082866),
-                        new LatLng(37.422984, -122.081404)
+                        new LatLng(37.422984, -122.081404)));
 
-
-
-
-                ));
 
         polyline4.setTag("Long Run");
         stylePolyline(polyline4);
 
+          Polyline polyline5 = mMap.addPolyline(new PolylineOptions()
+                .clickable(true)
+                .add(
+                        new LatLng(-33.884211, 151.199368),
+                        new LatLng(-33.884187, 151.200146),
+                        new LatLng(-33.884910, 151.200193),
+                        new LatLng(-33.884913, 151.200199),
+                        new LatLng(-33.884943, 151.200185),
+                        new LatLng(-33.884964, 151.200157),
+                        new LatLng(-33.884982, 151.200143),
+                        new LatLng(-33.885041, 151.200130),
+                        new LatLng(-33.885580, 151.200162),
+                        new LatLng(-33.885976, 151.200190),
+                        new LatLng(-33.885609, 151.199449),
+
+                        new LatLng(-33.886004, 151.199462),
+                        new LatLng(-33.886064, 151.198767),
+                        new LatLng(-33.886463, 151.198792),
+                        new LatLng(-33.886483, 151.200084),
+
+                        new LatLng(-33.886352, 151.200106),
+                        new LatLng(-33.886365, 151.200154),
+                        new LatLng(-33.886122, 151.200181),
+                        new LatLng(-33.886006, 151.200184)));
+
+        polyline5.setTag("Long Run");
+        stylePolyline(polyline5);
 
 
-         mMap.setOnPolygonClickListener(this);
+
+
+
+       //  mMap.setOnPolygonClickListener(this);
 
 
          // Add polygons to indicate areas on the map.
         Polygon polygon1 = mMap.addPolygon(new com.google.android.gms.maps.model.PolygonOptions()
-                .clickable(true)
+                .clickable(false)
                 .add(
                         new LatLng(37.424779, -122.090553),
                         new LatLng(37.424575, -122.086798),
@@ -234,14 +273,43 @@ public class MapsActivity extends AppCompatActivity
         stylePolygon(polygon1);
 
         Polygon polygon2 = mMap.addPolygon(new com.google.android.gms.maps.model.PolygonOptions()
-                .clickable(true)
+                .clickable(false)
                 .add(
                         new LatLng(37.428203, -122.093104),
                         new LatLng(37.428340, -122.087023),
                         new LatLng(37.425103, -122.086916),
                         new LatLng(37.426599, -122.093267)));
+
         polygon2.setTag("Intense Area");
         stylePolygon(polygon2);
+
+
+
+        Polygon polygon3 = mMap.addPolygon(new com.google.android.gms.maps.model.PolygonOptions()
+                .clickable(false)
+                .add(
+                        new LatLng(-33.889147, 151.202872),
+                        new LatLng(-33.889422, 151.205315),
+                        new LatLng(-33.888617, 151.205656),
+                        new LatLng(-33.888670, 151.206251),
+
+                        new LatLng(-33.886159, 151.206771),
+                        new LatLng(-33.887957, 151.203492),
+                        new LatLng(-33.888172, 151.203315),
+                        new LatLng(-33.888110, 151.203176)));
+
+        
+        polygon3.setTag("Intense Area");
+        stylePolygon(polygon3);
+
+
+
+
+
+
+
+
+
 
 
 
@@ -276,17 +344,17 @@ public class MapsActivity extends AppCompatActivity
                                     new LatLng(mLastKnownLocation.getLatitude(),
                                             mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                         } else {
-                            Log.d(TAG, "Current location is null. Using defaults.");
-                            Log.e(TAG, "Exception: %s", task.getException());
+                           Log.d (TAG, "Current location is null. Using defaults.");
+                         Log.e(TAG, "Exception: %s", task.getException());
                             mMap.moveCamera(CameraUpdateFactory
-                                    .newLatLngZoom(mDefaultLocation, DEFAULT_ZOOM));
-                            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                                    .newLatLngZoom( mDefaultLocation, DEFAULT_ZOOM));
+                          mMap.getUiSettings().setMyLocationButtonEnabled(false);
                         }
                     }
                 });
             }
         } catch (SecurityException e)  {
-            Log.e("Exception: %s", e.getMessage());
+            e("Exception: %s", e.getMessage());
         }
     }
 
@@ -367,8 +435,8 @@ updateLocationUI();
          // Flip the values of the red, green, and blue components of the polygon's color.
         int color = polygon.getStrokeColor(); //^ 0x00ffffff;
         polygon.setStrokeColor(color);
-        color = polygon.getFillColor();
-        polygon.setFillColor(color);
+      //  color = polygon.getFillColor();
+      //  polygon.setFillColor(color);
 
         Toast.makeText(this, "Area type " + polygon.getTag().toString(), Toast.LENGTH_SHORT).show();
     }
@@ -390,6 +458,7 @@ updateLocationUI();
         Toast.makeText(this, "Route type " + polyline.getTag().toString(),
                 Toast.LENGTH_SHORT).show();
     }
+
 
 
 
@@ -474,7 +543,7 @@ updateLocationUI();
     //deletes routes if user has a long click
     @Override
     public void onMapLongClick(LatLng latLng) {
-       // mMap.clear();
+       // mMap.refresh();
 
         arrayPoints.clear();
 
@@ -540,7 +609,7 @@ updateLocationUI();
         polygon.setStrokePattern(pattern);
         polygon.setStrokeWidth(POLYGON_STROKE_WIDTH_PX);
         polygon.setStrokeColor(strokeColor);
-        polygon.setFillColor(fillColor);
+       // polygon.setFillColor(fillColor);
     }
 
 
